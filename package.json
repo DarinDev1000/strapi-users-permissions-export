@@ -1,0 +1,29 @@
+{
+  "name": "strapi-users-permissions-export",
+  "version": "0.0.1",
+  "description": "Save your role permissions to config files that can be commited and reapplied to the datatbase.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarinDev1000/strapi-users-permissions-export.git"
+  },
+  "keywords": [
+    "Strapi",
+    "v3",
+    "v4",
+    "Users",
+    "Permissions",
+    "Export",
+    "Save",
+    "Database"
+  ],
+  "author": "DarinDev1000",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DarinDev1000/strapi-users-permissions-export/issues"
+  },
+  "homepage": "https://github.com/DarinDev1000/strapi-users-permissions-export#readme"
+}
