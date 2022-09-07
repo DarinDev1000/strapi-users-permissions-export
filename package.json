@@ -21,9 +21,12 @@
     "Database"
   ],
   "author": "DarinDev1000",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/DarinDev1000/strapi-users-permissions-export/issues"
   },
-  "homepage": "https://github.com/DarinDev1000/strapi-users-permissions-export#readme"
+  "homepage": "https://github.com/DarinDev1000/strapi-users-permissions-export#readme",
+  "dependencies": {
+    "yargs": "^17.5.1"
+  }
 }
