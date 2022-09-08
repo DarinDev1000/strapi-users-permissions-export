@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const fetch = require('node-fetch');
+const axios = require('axios').default;
 // require('dotenv').config();
 
 // Permissions can either be edited in the export files or in the strapi web admin and saved with this script
@@ -12,36 +12,31 @@ async function authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword) {
   if (!strapiUserEmail || !strapiUserPassword) {
     throw new Error('Missing --user or --pass for Strapi v3\n');
   }
-  const res = await fetch(`${serverUrl}/auth/local`, {
-    method: 'POST',
-    body: JSON.stringify({
-      identifier: strapiUserEmail,
-      password: strapiUserPassword
-    }),
+  const res = await axios.post(`${serverUrl}/auth/local`, {
+    identifier: strapiUserEmail,
+    password: strapiUserPassword
   });
-  const json = await res.json();
-  const jwt = json.jwt;
+  // console.log(res.data)
+  const jwt = res.data.jwt;
   return jwt;
 }
 
 async function getRoles(serverUrl, jwt) {
-  const res = await fetch(`${serverUrl}/users-permissions/roles`, {
+  const res = await axios.get(`${serverUrl}/users-permissions/roles`, {
     headers: {
       Authorization: `Bearer ${jwt}`
     }
   });
-  const json = await res.json();
-  return json.data.roles;
+  return res.data.roles;
 }
 
 async function getRolePermissions(serverUrl, jwt, roleId) {
-  const res = await fetch(`${serverUrl}/users-permissions/roles/${roleId}`, {
+  const res = await axios.get(`${serverUrl}/users-permissions/roles/${roleId}`, {
     headers: {
       Authorization: `Bearer ${jwt}`
     }
   });
-  const json = await res.json();
-  return json.data;
+  return res.data;
 }
 
 async function readJsonFile(filePath) {
@@ -72,14 +67,18 @@ async function main(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='
   // Default jwt to api key for strapi v4
   let jwt = strapiApiKey
   // ---- Login if strapi v3----
-  if (strapiVersion === '3') {
-  const jwt = await authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword);
+  if (strapiVersion === 3) {
+    jwt = await authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword);
   }
 
+  if (!jwt) {
+    console.error('ERROR: Auth failed');
+    return;
+  }
 
   // ---- Get all roles ----
   let roles = await getRoles(serverUrl, jwt);
-  // console.log(roles);
+  console.log(roles);
   const publicRole = roles.find(role => role.type === 'public'); // Default role
   const authenticatedRole = roles.find(role => role.type === 'authenticated'); // Default role
   let customerSupportRole = roles.find(role => role.type === 'customer_support');

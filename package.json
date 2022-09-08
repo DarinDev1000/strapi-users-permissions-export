@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/DarinDev1000/strapi-users-permissions-export#readme",
   "dependencies": {
-    "node-fetch": "^2.6.7",
+    "axios": "^0.27.2",
     "yargs": "^17.5.1"
   }
 }
