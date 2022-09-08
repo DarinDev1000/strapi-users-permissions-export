@@ -147,4 +147,6 @@ async function main() {
 
   // If this is a new database, change your role to super after the update
 }
-main();
+// main();
+
+module.exports = main;

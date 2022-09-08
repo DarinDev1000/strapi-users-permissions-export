@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const fetch = require('node-fetch');
 // require('dotenv').config();
 
 // Permissions can either be edited in the export files or in the strapi web admin and saved with this script
 
-async function authLogin() {
+async function authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword) {
   // console.log(process.env.STRAPI_SUPER_USER_EMAIL);
   // console.log(process.env.STRAPI_SUPER_USER_PASSWORD);
-  if (!process.env.STRAPI_SUPER_USER_EMAIL || !process.env.STRAPI_SUPER_USER_PASSWORD) {
-    throw new Error('Missing STRAPI_SUPER_USER_EMAIL or STRAPI_SUPER_USER_PASSWORD in env file\n');
+  if (!strapiUserEmail || !strapiUserPassword) {
+    throw new Error('Missing --user or --pass for Strapi v3\n');
   }
-  const res = await fetch('http://localhost:1337/auth/local', {
+  const res = await fetch(`${serverUrl}/auth/local`, {
     method: 'POST',
     body: JSON.stringify({
-      identifier: process.env.STRAPI_SUPER_USER_EMAIL,
-      password: process.env.STRAPI_SUPER_USER_PASSWORD
+      identifier: strapiUserEmail,
+      password: strapiUserPassword
     }),
   });
   const json = await res.json();
@@ -23,8 +24,8 @@ async function authLogin() {
   return jwt;
 }
 
-async function getRoles(jwt) {
-  const res = await fetch('http://localhost:1337/users-permissions/roles', {
+async function getRoles(serverUrl, jwt) {
+  const res = await fetch(`${serverUrl}/users-permissions/roles`, {
     headers: {
       Authorization: `Bearer ${jwt}`
     }
@@ -33,8 +34,8 @@ async function getRoles(jwt) {
   return json.data.roles;
 }
 
-async function getRolePermissions(jwt, roleId) {
-  const res = await fetch(`http://localhost:1337/users-permissions/roles/${roleId}`, {
+async function getRolePermissions(serverUrl, jwt, roleId) {
+  const res = await fetch(`${serverUrl}/users-permissions/roles/${roleId}`, {
     headers: {
       Authorization: `Bearer ${jwt}`
     }
@@ -61,13 +62,23 @@ function recursiveUpdate(originalObject, newObject) {
 }
 
 
-async function main() {
-  // ---- Login ----
-  const jwt = await authLogin();
+async function main(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='') {
+  console.log('serverUrl ', serverUrl)
+  console.log('strapiVersion ', strapiVersion)
+  console.log('strapiApiKey ', strapiApiKey)
+  console.log('strapiUserEmail ', strapiUserEmail)
+  console.log('strapiUserPassword ', strapiUserPassword)
+
+  // Default jwt to api key for strapi v4
+  let jwt = strapiApiKey
+  // ---- Login if strapi v3----
+  if (strapiVersion === '3') {
+  const jwt = await authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword);
+  }
 
 
   // ---- Get all roles ----
-  let roles = await getRoles(jwt);
+  let roles = await getRoles(serverUrl, jwt);
   // console.log(roles);
   const publicRole = roles.find(role => role.type === 'public'); // Default role
   const authenticatedRole = roles.find(role => role.type === 'authenticated'); // Default role
@@ -76,15 +87,15 @@ async function main() {
   let superRole = roles.find(role => role.type === 'super');
 
   // ---- Get permissions for each role ----
-  const publicRolePermissions = await getRolePermissions(jwt, publicRole.id);
+  const publicRolePermissions = await getRolePermissions(serverUrl, jwt, publicRole.id);
   console.log('Fetched public role permissions');
-  const authenticatedRolePermissions = await getRolePermissions(jwt, authenticatedRole.id);
+  const authenticatedRolePermissions = await getRolePermissions(serverUrl, jwt, authenticatedRole.id);
   console.log('Fetched authenticated role permissions');
-  const customerSupportRolePermissions = await getRolePermissions(jwt, customerSupportRole.id);
+  const customerSupportRolePermissions = await getRolePermissions(serverUrl, jwt, customerSupportRole.id);
   console.log('Fetched customer support role permissions');
-  const analystRolePermissions = await getRolePermissions(jwt, analystRole.id);
+  const analystRolePermissions = await getRolePermissions(serverUrl, jwt, analystRole.id);
   console.log('Fetched analyst role permissions');
-  const superRolePermissions = await getRolePermissions(jwt, superRole.id);
+  const superRolePermissions = await getRolePermissions(serverUrl, jwt, superRole.id);
   console.log('Fetched super role permissions');
 
   // ---- Read stored permission files ----
@@ -132,4 +143,6 @@ async function main() {
     console.log('Saved superRolePermissions.json');
   });
 }
-main();
+// main();
+
+module.exports = main;
