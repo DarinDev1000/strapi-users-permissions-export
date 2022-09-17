@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { promises } = require('stream');
 const axios = require('axios').default;
 // require('dotenv').config();
 
@@ -40,8 +41,13 @@ async function getRolePermissions(serverUrl, jwt, roleId) {
 }
 
 async function readJsonFile(filePath) {
-  const file = fs.readFileSync(filePath, 'utf8');
-  return JSON.parse(file);
+  try {
+    const file = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(file);
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
 }
 
 function recursiveUpdate(originalObject, newObject) {
@@ -57,7 +63,7 @@ function recursiveUpdate(originalObject, newObject) {
 }
 
 
-async function main(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='') {
+async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='') {
   console.log('serverUrl ', serverUrl)
   console.log('strapiVersion ', strapiVersion)
   console.log('strapiApiKey ', strapiApiKey)
@@ -76,72 +82,101 @@ async function main(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='
     return;
   }
 
+  // ---- Create permissions export folder if it doesn't exist ----
+  if (!fs.existsSync(`./role_permissions_export`)){
+    fs.mkdirSync(`./role_permissions_export`);
+  }
+
   // ---- Get all roles ----
   let roles = await getRoles(serverUrl, jwt);
   console.log(roles);
-  const publicRole = roles.find(role => role.type === 'public'); // Default role
-  const authenticatedRole = roles.find(role => role.type === 'authenticated'); // Default role
-  let customerSupportRole = roles.find(role => role.type === 'customer_support');
-  let analystRole = roles.find(role => role.type === 'analyst');
-  let superRole = roles.find(role => role.type === 'super');
 
-  // ---- Get permissions for each role ----
-  const publicRolePermissions = await getRolePermissions(serverUrl, jwt, publicRole.id);
-  console.log('Fetched public role permissions');
-  const authenticatedRolePermissions = await getRolePermissions(serverUrl, jwt, authenticatedRole.id);
-  console.log('Fetched authenticated role permissions');
-  const customerSupportRolePermissions = await getRolePermissions(serverUrl, jwt, customerSupportRole.id);
-  console.log('Fetched customer support role permissions');
-  const analystRolePermissions = await getRolePermissions(serverUrl, jwt, analystRole.id);
-  console.log('Fetched analyst role permissions');
-  const superRolePermissions = await getRolePermissions(serverUrl, jwt, superRole.id);
-  console.log('Fetched super role permissions');
+  roles.forEach(async (role) => {
+    const filePath = `./role_permissions_export/${role.type}_role_permissions.json`;
 
-  // ---- Read stored permission files ----
-  const filePublicRolePermissions = await readJsonFile('./publicRolePermissions.json');
-  const fileAuthenticatedRolePermissions = await readJsonFile('./authenticatedRolePermissions.json');
-  const fileCustomerSupportRolePermissions = await readJsonFile('./customerSupportRolePermissions.json');
-  const fileAnalystRolePermissions = await readJsonFile('./analystRolePermissions.json');
-  const fileSuperRolePermissions = await readJsonFile('./superRolePermissions.json');
-  // ---- Reorder to match current files ----
-  const reorderedPublicRolePermissions = recursiveUpdate(filePublicRolePermissions, {...publicRolePermissions.role, id: undefined});
-  const reorderedAuthenticatedRolePermissions = recursiveUpdate(fileAuthenticatedRolePermissions, {...authenticatedRolePermissions.role, id: undefined});
-  const reorderedCustomerSupportRolePermissions = recursiveUpdate(fileCustomerSupportRolePermissions, {...customerSupportRolePermissions.role, id: undefined});
-  const reorderedAnalystRolePermissions = recursiveUpdate(fileAnalystRolePermissions, {...analystRolePermissions.role, id: undefined});
-  const reorderedSuperRolePermissions = recursiveUpdate(fileSuperRolePermissions, {...superRolePermissions.role, id: undefined});
+    // ---- Get role permissions ----
+    let rolePermissions = await getRolePermissions(serverUrl, jwt, role.id);
+    console.log(rolePermissions);
+
+    // ---- Read stored permission file if exists ----
+    const existingFileRolePermissions = await readJsonFile(filePath);
+
+    // ---- Reorder to match current files ----
+    const reorderedRolePermissions = recursiveUpdate(existingFileRolePermissions, {...rolePermissions.role, id: undefined});
+
+    // ---- Save role permissions to file ----
+    // fs.writeFileSync(filePath, JSON.stringify(existingFileRolePermissions, null, 4));
+    fs.writeFile(filePath, JSON.stringify(reorderedRolePermissions, null, 4), err => {
+      if (err) {
+        console.error(err);
+      }
+      console.log('Saved publicRolePermissions.json');
+    });
+  });
+  
+  // const publicRole = roles.find(role => role.type === 'public'); // Default role
+  // const authenticatedRole = roles.find(role => role.type === 'authenticated'); // Default role
+  // let customerSupportRole = roles.find(role => role.type === 'customer_support');
+  // let analystRole = roles.find(role => role.type === 'analyst');
+  // let superRole = roles.find(role => role.type === 'super');
+
+  // // ---- Get permissions for each role ----
+  // const publicRolePermissions = await getRolePermissions(serverUrl, jwt, publicRole.id);
+  // console.log('Fetched public role permissions');
+  // const authenticatedRolePermissions = await getRolePermissions(serverUrl, jwt, authenticatedRole.id);
+  // console.log('Fetched authenticated role permissions');
+  // const customerSupportRolePermissions = await getRolePermissions(serverUrl, jwt, customerSupportRole.id);
+  // console.log('Fetched customer support role permissions');
+  // const analystRolePermissions = await getRolePermissions(serverUrl, jwt, analystRole.id);
+  // console.log('Fetched analyst role permissions');
+  // const superRolePermissions = await getRolePermissions(serverUrl, jwt, superRole.id);
+  // console.log('Fetched super role permissions');
+
+  // // ---- Read stored permission files ----
+  // const filePublicRolePermissions = await readJsonFile('./publicRolePermissions.json');
+  // const fileAuthenticatedRolePermissions = await readJsonFile('./authenticatedRolePermissions.json');
+  // const fileCustomerSupportRolePermissions = await readJsonFile('./customerSupportRolePermissions.json');
+  // const fileAnalystRolePermissions = await readJsonFile('./analystRolePermissions.json');
+  // const fileSuperRolePermissions = await readJsonFile('./superRolePermissions.json');
+  // // ---- Reorder to match current files ----
+  // const reorderedPublicRolePermissions = recursiveUpdate(filePublicRolePermissions, {...publicRolePermissions.role, id: undefined});
+  // const reorderedAuthenticatedRolePermissions = recursiveUpdate(fileAuthenticatedRolePermissions, {...authenticatedRolePermissions.role, id: undefined});
+  // const reorderedCustomerSupportRolePermissions = recursiveUpdate(fileCustomerSupportRolePermissions, {...customerSupportRolePermissions.role, id: undefined});
+  // const reorderedAnalystRolePermissions = recursiveUpdate(fileAnalystRolePermissions, {...analystRolePermissions.role, id: undefined});
+  // const reorderedSuperRolePermissions = recursiveUpdate(fileSuperRolePermissions, {...superRolePermissions.role, id: undefined});
 
 
-  fs.writeFile('./publicRolePermissions.json', JSON.stringify(reorderedPublicRolePermissions, null, 4), err => {
-    if (err) {
-      console.error(err);
-    }
-    console.log('Saved publicRolePermissions.json');
-  });
-  fs.writeFile('./authenticatedRolePermissions.json', JSON.stringify(reorderedAuthenticatedRolePermissions, null, 4), err => {
-    if (err) {
-      console.error(err);
-    }
-    console.log('Saved authenticatedRolePermissions.json');
-  });
-  fs.writeFile('./customerSupportRolePermissions.json', JSON.stringify(reorderedCustomerSupportRolePermissions, null, 4), err => {
-    if (err) {
-      console.error(err);
-    }
-    console.log('Saved customerSupportRolePermissions.json');
-  });
-  fs.writeFile('./analystRolePermissions.json', JSON.stringify(reorderedAnalystRolePermissions, null, 4), err => {
-    if (err) {
-      console.error(err);
-    }
-    console.log('Saved analystRolePermissions.json');
-  });
-  fs.writeFile('./superRolePermissions.json', JSON.stringify(reorderedSuperRolePermissions, null, 4), err => {
-    if (err) {
-      console.error(err);
-    }
-    console.log('Saved superRolePermissions.json');
-  });
+  // fs.writeFile('./publicRolePermissions.json', JSON.stringify(reorderedPublicRolePermissions, null, 4), err => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log('Saved publicRolePermissions.json');
+  // });
+  // fs.writeFile('./authenticatedRolePermissions.json', JSON.stringify(reorderedAuthenticatedRolePermissions, null, 4), err => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log('Saved authenticatedRolePermissions.json');
+  // });
+  // fs.writeFile('./customerSupportRolePermissions.json', JSON.stringify(reorderedCustomerSupportRolePermissions, null, 4), err => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log('Saved customerSupportRolePermissions.json');
+  // });
+  // fs.writeFile('./analystRolePermissions.json', JSON.stringify(reorderedAnalystRolePermissions, null, 4), err => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log('Saved analystRolePermissions.json');
+  // });
+  // fs.writeFile('./superRolePermissions.json', JSON.stringify(reorderedSuperRolePermissions, null, 4), err => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log('Saved superRolePermissions.json');
+  // });
 }
 // main();
 
-module.exports = main;
+module.exports = exportScript;

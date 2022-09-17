@@ -18,8 +18,13 @@ async function main() {
    * @property {string} [p] - Strapi v3 user password
    */
   const options = await yargs
-    .usage('Usage: -key <api-key> -s <server-url>')
-    .usage('Usage: -v 3 -user <user> -pass <pass> -s <server-url>')
+    .usage('Strapi Version 4 (default)')
+    .usage('Usage: -s <server-url> -key <api-key>')
+    .usage('Example: -s http://localhost:1337 -key uaighdfljzjhsdbfluiahbsefabdslf')
+    .usage('')
+    .usage('Strapi Version 3')
+    .usage('Usage: -s <server-url> -v 3 -user <user-email> -pass <password>')
+    .usage('Example: -s http://localhost:1337 -v 3 -u email@example.com -p "password"')
     .option('s', { alias: 'strapi-server', describe: 'Strapi server url', type: 'string', demandOption: true })
     .option('v', { alias: 'strapi-version', describe: 'Strapi version', type: 'number', demandOption: false })
     .option('k', { alias: 'api-key', describe: 'v4: Strapi API Key. Use user/pass for v3', type: 'string', demandOption: false })
@@ -52,4 +57,13 @@ async function main() {
   }
 }
 
-main();
+// Can I use this as a cli and an export?
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  export: exportScript,
+  import: importScripts,
+}

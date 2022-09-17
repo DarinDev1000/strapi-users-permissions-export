@@ -81,7 +81,7 @@ async function readJsonFile(filePath) {
 }
 
 
-async function main() {
+async function importScript() {
   // ---- Login ----
   const jwt = await authLogin();
 
@@ -147,6 +147,6 @@ async function main() {
 
   // If this is a new database, change your role to super after the update
 }
-// main();
+// importScript();
 
-module.exports = main;
+module.exports = importScript;
