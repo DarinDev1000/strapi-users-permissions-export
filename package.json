@@ -20,7 +20,7 @@
     "Save",
     "Database"
   ],
-  "author": "DarinDev1000",
+  "author": "DarinDev1000 <darindev1000@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DarinDev1000/strapi-users-permissions-export/issues"
