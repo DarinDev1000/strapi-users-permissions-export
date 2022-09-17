@@ -59,11 +59,12 @@ async function main() {
 
 // Can I use this as a cli and an export?
 
-if (require.main === module) {
-  main();
-}
+main();
+// if (require.main === module) {
+//   main();
+// }
 
-module.exports = {
-  export: exportScript,
-  import: importScripts,
-}
+// module.exports = {
+//   export: exportScript,
+//   import: importScripts,
+// }

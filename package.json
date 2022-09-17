@@ -1,8 +1,9 @@
 {
   "name": "strapi-users-permissions-export",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Save your role permissions to config files that can be commited and reapplied to the datatbase.",
   "main": "index.js",
+  "bin": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
