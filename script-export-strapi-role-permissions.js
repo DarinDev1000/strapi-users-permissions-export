@@ -5,6 +5,8 @@ const { promises } = require('stream');
 const axios = require('axios').default;
 // require('dotenv').config();
 
+const FOLDER_PATH = './strapi-users-permissions-export';
+
 // Permissions can either be edited in the export files or in the strapi web admin and saved with this script
 
 async function authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword) {
@@ -63,7 +65,7 @@ function recursiveUpdate(originalObject, newObject) {
 }
 
 
-async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='') {
+async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='', folderPath=FOLDER_PATH) {
   console.log('serverUrl ', serverUrl)
   console.log('strapiVersion ', strapiVersion)
   console.log('strapiApiKey ', strapiApiKey)
@@ -83,8 +85,8 @@ async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUse
   }
 
   // ---- Create permissions export folder if it doesn't exist ----
-  if (!fs.existsSync(`./role_permissions_export`)){
-    fs.mkdirSync(`./role_permissions_export`);
+  if (!fs.existsSync(folderPath)){
+    fs.mkdirSync(folderPath);
   }
 
   // ---- Get all roles ----
@@ -92,7 +94,7 @@ async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUse
   console.log(roles);
 
   roles.forEach(async (role) => {
-    const filePath = `./role_permissions_export/${role.type}_role_permissions.json`;
+    const filePath = `${folderPath}/${role.type}_role_permissions.json`;
 
     // ---- Get role permissions ----
     let rolePermissions = await getRolePermissions(serverUrl, jwt, role.id);

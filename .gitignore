@@ -1,3 +1,4 @@
 **/node_modules/
 **/.env*
 role_permissions_export/
+strapi-users-permissions-export/

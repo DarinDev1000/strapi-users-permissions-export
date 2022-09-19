@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const exportScript = require('./script-export-strapi-role-permissions');
-// const updateScript = require('./script-update-strapi-role-permissions');
+// const importScript = require('./script-import-strapi-role-permissions');
 
 const yargs = require('yargs');
 
@@ -18,18 +18,29 @@ async function main() {
    * @property {string} [p] - Strapi v3 user password
    */
   const options = await yargs
+    .usage('Strapi should be running alongside this cli tool.')
+    .usage('')
+    .usage('The api-key/user should have these permissions under userspermissions:')
+    .usage('- createrole getrole getroles updaterole')
+    .usage('')
     .usage('Strapi Version 4 (default)')
-    .usage('Usage: -s <server-url> -key <api-key>')
-    .usage('Example: -s http://localhost:1337 -key uaighdfljzjhsdbfluiahbsefabdslf')
+    .usage('- Usage: export -s <server-url> -key <api-key>')
+    .usage('- Example: export -s http://localhost:1337 -key apikey')
+    .usage('- Example: import -s http://localhost:1337 -key apikey')
     .usage('')
     .usage('Strapi Version 3')
-    .usage('Usage: -s <server-url> -v 3 -user <user-email> -pass <password>')
-    .usage('Example: -s http://localhost:1337 -v 3 -u email@example.com -p "password"')
+    .usage('- Usage: export -s <server-url> -v 3 -user <user-email> -pass <password>')
+    .usage('- Example: export -s http://localhost:1337 -v 3 -u export@example.com -p "password"')
+    .usage('- Example: import -s http://localhost:1337 -v 3 -u export@example.com -p "password"')
+    .usage('')
     .option('s', { alias: 'strapi-server', describe: 'Strapi server url', type: 'string', demandOption: true })
     .option('v', { alias: 'strapi-version', describe: 'Strapi version', type: 'number', demandOption: false })
     .option('k', { alias: 'api-key', describe: 'v4: Strapi API Key. Use user/pass for v3', type: 'string', demandOption: false })
     .option('u', { alias: 'user', describe: 'v3 Strapi Username', type: 'string', demandOption: false })
     .option('p', { alias: 'pass', describe: 'v3 Strapi Password', type: 'string', demandOption: false })
+    .option('o', { alias: 'output-folder', describe: 'Custom export path', type: 'string', demandOption: false })
+    .command('export', 'Export Role Permissions from strapi database to json')
+    .command('import', 'Import Role Permissions back into strapi database from json')
     .argv;
   if (!options.v) options.v = 4;
   // if (!options.k) options.k = '';
@@ -50,21 +61,28 @@ async function main() {
     return;
   }
 
-  if (options.v === 4) {
-    exportScript(options.s, options.v, options.k);
-  } else if (options.v === 3) {
-    exportScript(options.s, options.v, options.k, options.u, options.p);
+  if (options._[0] === 'export') {
+    console.log('Exporting Permissions...');
+    if (options.v === 4) {
+      exportScript(options.s, options.v, options.k);
+    } else if (options.v === 3) {
+      exportScript(options.s, options.v, options.k, options.u, options.p);
+    }
+  } else if (options._[0] === 'import') {
+    console.log('Import not yet implemented');
+  } else {
+    console.log('Please specify a command: export or import');
   }
 }
 
 // Can I use this as a cli and an export?
 
 main();
-// if (require.main === module) {
-//   main();
-// }
+if (require.main === module) {
+  main();
+}
 
-// module.exports = {
-//   export: exportScript,
-//   import: importScripts,
-// }
+module.exports = {
+  exportScript: exportScript,
+  // importScript: importScript,
+}
