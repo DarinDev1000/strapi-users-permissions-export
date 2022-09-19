@@ -18,11 +18,13 @@ Create an api-key or user with these permissions:
 
 **Navigate to the root of your strapi project and run the following command:**
 
-```bash
-npx strapi-users-permissions-export
-```
+2. Navigate to the root of your strapi project and run the following command:  
+  `npx strapi-users-permissions-export`
 
 This will show the help and run again with the flags to export your permissions.
+
+Example:  
+`npm run strapi-users-permissions-export -- -s http://localhost:1337 -k apikey`
 
 
 ## Import Role Permissions back into strapi database from json
