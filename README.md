@@ -16,7 +16,7 @@ Create an api-key or user with these permissions:
 
 ## Export Role Permissions from strapi database to json
 
-**Navigate to the root of your strapi project and run the following command:**
+**Navigate to the root of your strapi project and run the following command:**  
 `npx strapi-users-permissions-export`
 
 This will show the help and run again with the flags to export your permissions.
@@ -26,7 +26,7 @@ Example:
 
 
 ## Import Role Permissions back into strapi database from json
-**Navigate to the root of your strapi project and run the following command:**
+**Navigate to the root of your strapi project and run the following command:**  
 `npx strapi-users-permissions-export`
 
 This will show the help and run again with the flags to export your permissions.
