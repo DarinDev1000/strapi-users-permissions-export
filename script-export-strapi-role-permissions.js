@@ -5,8 +5,6 @@ const { promises } = require('stream');
 const axios = require('axios').default;
 // require('dotenv').config();
 
-const FOLDER_PATH = './strapi-users-permissions-export';
-
 // Permissions can either be edited in the export files or in the strapi web admin and saved with this script
 
 async function authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword) {
@@ -65,12 +63,12 @@ function recursiveUpdate(originalObject, newObject) {
 }
 
 
-async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUserEmail='', strapiUserPassword='', folderPath=FOLDER_PATH) {
-  console.log('serverUrl ', serverUrl)
-  console.log('strapiVersion ', strapiVersion)
-  console.log('strapiApiKey ', strapiApiKey)
-  console.log('strapiUserEmail ', strapiUserEmail)
-  console.log('strapiUserPassword ', strapiUserPassword)
+async function exportScript(serverUrl, strapiVersion, folderPath, strapiApiKey='', strapiUserEmail='', strapiUserPassword='') {
+  // console.log('serverUrl ', serverUrl)
+  // console.log('strapiVersion ', strapiVersion)
+  // console.log('strapiApiKey ', strapiApiKey)
+  // console.log('strapiUserEmail ', strapiUserEmail)
+  // console.log('strapiUserPassword ', strapiUserPassword)
 
   // Default jwt to api key for strapi v4
   let jwt = strapiApiKey
@@ -91,14 +89,14 @@ async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUse
 
   // ---- Get all roles ----
   let roles = await getRoles(serverUrl, jwt);
-  console.log(roles);
+  // console.log(roles);
 
   roles.forEach(async (role) => {
     const filePath = `${folderPath}/${role.type}_role_permissions.json`;
 
     // ---- Get role permissions ----
     let rolePermissions = await getRolePermissions(serverUrl, jwt, role.id);
-    console.log(rolePermissions);
+    // console.log(rolePermissions);
 
     // ---- Read stored permission file if exists ----
     const existingFileRolePermissions = await readJsonFile(filePath);
@@ -112,7 +110,7 @@ async function exportScript(serverUrl, strapiVersion, strapiApiKey='', strapiUse
       if (err) {
         console.error(err);
       }
-      console.log('Saved publicRolePermissions.json');
+      console.log(`Saved ${role.type}_role_permissions.json`);
     });
   });
   

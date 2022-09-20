@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 const exportScript = require('./script-export-strapi-role-permissions');
-// const importScript = require('./script-import-strapi-role-permissions');
+const importScript = require('./script-import-strapi-role-permissions');
 
 const yargs = require('yargs');
 
 async function main() {
+
+  const FOLDER_PATH = './strapi-users-permissions-export';
 
   /**
    * Get cli options
@@ -24,14 +26,14 @@ async function main() {
     .usage('- createrole getrole getroles updaterole')
     .usage('')
     .usage('Strapi Version 4 (default)')
-    .usage('- Usage: export -s <server-url> -key <api-key>')
-    .usage('- Example: export -s http://localhost:1337 -key apikey')
-    .usage('- Example: import -s http://localhost:1337 -key apikey')
+    .usage('- Usage: -s <server-url> -key <api-key> export')
+    .usage('- Example: -s http://localhost:1337 -key apikey export')
+    .usage('- Example: -s http://localhost:1337 -key apikey import')
     .usage('')
     .usage('Strapi Version 3')
-    .usage('- Usage: export -s <server-url> -v 3 -user <user-email> -pass <password>')
-    .usage('- Example: export -s http://localhost:1337 -v 3 -u export@example.com -p "password"')
-    .usage('- Example: import -s http://localhost:1337 -v 3 -u export@example.com -p "password"')
+    .usage('- Usage: -s <server-url> -v 3 -user <user-email> -pass <password> export')
+    .usage('- Example: -s http://localhost:1337 -v 3 -u export@example.com -p "password" export')
+    .usage('- Example: -s http://localhost:1337 -v 3 -u export@example.com -p "password" import')
     .usage('')
     .option('s', { alias: 'strapi-server', describe: 'Strapi server url', type: 'string', demandOption: true })
     .option('v', { alias: 'strapi-version', describe: 'Strapi version', type: 'number', demandOption: false })
@@ -47,10 +49,10 @@ async function main() {
   // if (!options.u) options.u = '';
   // if (!options.p) options.p = '';
 
-  console.dir(options, { depth: null, colors: true });
+  // console.dir(options, { depth: null, colors: true });
 
-  const greeting = `Strapi version: ${options.v}`;
-  console.log(greeting);
+  // const greeting = `Strapi version: ${options.v}`;
+  // console.log(greeting);
 
   // Check server url
   if (!options.s.includes('http://') && !options.s.includes('https://')) {
@@ -61,15 +63,22 @@ async function main() {
     return;
   }
 
+  let folderPath = FOLDER_PATH;
+  if (options.o) {
+    folderPath = options.o;
+  }
+
   if (options._[0] === 'export') {
     console.log('Exporting Permissions...');
-    if (options.v === 4) {
-      exportScript(options.s, options.v, options.k);
-    } else if (options.v === 3) {
-      exportScript(options.s, options.v, options.k, options.u, options.p);
-    }
+    exportScript(options.s, options.v, folderPath, options.k, options.u, options.p);
+    // if (options.v === 4) {
+    //   exportScript(options.s, options.v, folderPath, options.k);
+    // } else if (options.v === 3) {
+    //   exportScript(options.s, options.v, folderPath, options.k, options.u, options.p);
+    // }
   } else if (options._[0] === 'import') {
-    console.log('Import not yet implemented');
+    console.log('Importing Permissions...');
+    importScript(options.s, options.v, folderPath, options.k, options.u, options.p);
   } else {
     console.log('Please specify a command: export or import');
   }
@@ -77,12 +86,11 @@ async function main() {
 
 // Can I use this as a cli and an export?
 
-main();
 if (require.main === module) {
   main();
 }
 
-module.exports = {
-  exportScript: exportScript,
-  // importScript: importScript,
-}
+// module.exports = {
+//   exportScript: exportScript,
+//   importScript: importScript,
+// }
