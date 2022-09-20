@@ -22,7 +22,8 @@ Create an api-key or user with these permissions:
 This will show the help and run again with the flags to export your permissions.
 
 Example:  
-`npx strapi-users-permissions-export -- -s http://localhost:1337 -k apikey export`
+- v4 `npx strapi-users-permissions-export -- -s http://localhost:1337 -k <api-key> export`
+- v3 `npx strapi-users-permissions-export -- -v 3 -s http://localhost:1337 -u <email> -p <password> export`
 
 
 ## Import Role Permissions back into strapi database from json
@@ -32,4 +33,9 @@ Example:
 This will show the help and run again with the flags to export your permissions.
 
 Example:  
-`npx strapi-users-permissions-export -- -s http://localhost:1337 -k apikey import`
+- v4 `npx strapi-users-permissions-export -- -s http://localhost:1337 -k <api-key> import`
+- v3 `npx strapi-users-permissions-export -- -v 3 -s http://localhost:1337 -u <email> -p <password> import`
+
+#### <ins>[Npm](https://www.npmjs.com/package/strapi-users-permissions-export)<ins>
+
+#### <ins>[Github](https://github.com/DarinDev1000/strapi-users-permissions-export)<ins>
