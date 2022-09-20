@@ -23,12 +23,16 @@ async function authLoginV3(serverUrl, strapiUserEmail, strapiUserPassword) {
 }
 
 async function getRoles(serverUrl, jwt) {
-  const res = await axios.get(`${serverUrl}/users-permissions/roles`, {
-    headers: {
-      Authorization: `Bearer ${jwt}`
-    }
-  });
-  return res.data.roles;
+  try {
+    const res = await axios.get(`${serverUrl}/users-permissions/roles`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`
+      }
+    });
+    return res.data.roles;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function getRolePermissions(serverUrl, jwt, roleId) {

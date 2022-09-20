@@ -6,7 +6,7 @@ Also, it can import the json file to strapi database.
 This can be useful when switching branches with different permissions
 
 ## Setup
-Create an api-key or user with these permissions:
+Create an full access api-key or user with these permissions:
 - userspermissions/createrole
 - userspermissions/getrole
 - userspermissions/getroles
@@ -22,7 +22,7 @@ Create an api-key or user with these permissions:
 This will show the help and run again with the flags to export your permissions.
 
 Example:  
-- v4 `npx strapi-users-permissions-export -s http://localhost:1337 -k <api-key> export`
+- v4 `npx strapi-users-permissions-export -s http://localhost:1337/api -k <api-key> export`
 - v3 `npx strapi-users-permissions-export -v 3 -s http://localhost:1337 -u <email> -p <password> export`
 
 
@@ -33,7 +33,7 @@ Example:
 This will show the help and run again with the flags to export your permissions.
 
 Example:  
-- v4 `npx strapi-users-permissions-export -s http://localhost:1337 -k <api-key> import`
+- v4 `npx strapi-users-permissions-export -s http://localhost:1337/api -k <api-key> import`
 - v3 `npx strapi-users-permissions-export -v 3 -s http://localhost:1337 -u <email> -p <password> import`
 
 #### <ins>[Npm](https://www.npmjs.com/package/strapi-users-permissions-export)<ins>
