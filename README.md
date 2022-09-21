@@ -1,9 +1,16 @@
 # Strapi Users Permissions Export
 
-This is a cli tool to export strapi role permissions to a json file.
-Also, it can import the json file to strapi database.
+Save your role permissions to config files that can be committed and reapplied to the database.
 
-This can be useful when switching branches with different permissions
+----
+
+This is a cli tool to export strapi role permissions to a json file.
+It can also import the role permissions back into a strapi database.
+
+This can be useful when switching branches with different permissions.
+Commit these exported files to your repository and import them when switching branches.
+
+Permissions can be changed in the strapi admin panel and exported or changed directly in the json file and imported.
 
 ## Setup
 Create an full access api-key or user with these permissions:
